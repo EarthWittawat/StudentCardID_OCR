@@ -9,12 +9,15 @@ st.set_page_config(
     layout="wide",
 )
 
-model = easyocr.Reader(['th'])
+
+@st.cache
+def load_model():
+    model = easyocr.Reader(['th'], model_storage_directory=".")
+    return model
 
 
-def ocr(image):
+def ocr(image, model):
     getText = model.readtext(image)
-    result = []
     name = getText[6][1].replace(' ', '')
     id = getText[8][1].replace('เลขประจำตัว', '')
     information = {
@@ -32,5 +35,6 @@ with st.container():
         st.image(image, caption='อัปโหลดบัตรนักเรียน',
                  width=300)
         st.write("")
-        labels = ocr(image)
+        model = load_model()
+        labels = ocr(image, model)
         st.write(labels)
